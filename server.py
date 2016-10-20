@@ -1,10 +1,18 @@
 """Server app for DataRobot Prime prediction."""
 # -*- coding: utf-8 -*-
 
-from bottle import post, run, request, response, error, BaseRequest
+from bottle import get, post, run, request, response, error, BaseRequest
 import json
+import os
 import pandas
-import prime  # DataRobot Prime module
+import prime as prime  # DataRobot Prime module
+
+
+@get('/status')
+def get_status():
+    """Return 200 reponse."""
+    response.content_type = 'application/json'
+    return json.dumps({'status': 'ok', 'error': None, 'code': 200})
 
 
 @post('/predict')
@@ -75,4 +83,8 @@ if __name__ == '__main__':
     KB = 1024
     MB = KB * KB
     BaseRequest.MEMFILE_MAX = 2 * MB
-    run(host='localhost', port=8080)
+
+    port = 8080
+    if "DR_SERVER_PORT" in os.environ:
+        port = os.environ["DR_SERVER_PORT"]
+    run(host='0.0.0.0', port=port)
